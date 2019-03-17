@@ -1,0 +1,108 @@
+<template>
+  <div class="page">
+    <div class="navbar">
+      <div class="navbar-inner">
+        <div class="left">
+          <a href="#" class="link back">
+            <i class="icon icon-back"></i>
+            <span class="if-ios">Back</span>
+          </a>
+        </div>
+        <div class="title sliding">Yoga Stunden</div>
+        <div class="right">
+          <!-- Link to enable searchbar -->
+          <a class="link icon-only searchbar-enable" data-searchbar="#searchbar-yoga">
+            <i class="icon f7-icons ios-only">search_strong</i>
+            <i class="icon material-icons md-only">search</i>
+          </a>
+        </div>
+        <!-- Searchbar is a direct child of "navbar-inner" -->
+        <form id="searchbar-yoga" class="searchbar searchbar-expandable searchbar-init">
+          <div class="searchbar-inner">
+            <div class="searchbar-input-wrap">
+              <input type="search" placeholder="Search"/>
+              <i class="searchbar-icon"></i>
+              <span class="input-clear-button"></span>
+            </div>
+            <span class="searchbar-disable-button">Cancel</span>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="page-content" id="blaaah">
+
+      <div class="list media-list">
+        <ul id="list-yoga">
+          {{#each yogaItems}}
+          <li>
+            <a href="#" class="item-link item-content">
+              <div class="item-media"><img src="https://cdn.framework7.io/placeholder/people-160x160-1.jpg" width="80"></div>
+              <div class="item-inner">
+                <div class="item-title-row">
+                  <div class="item-title">{{this.title}}</div>
+                  <div class="item-after"><i class="far fa-clock"></i>&nbsp;{{this.duration}} min</div>
+                </div>
+                <div class="item-subtitle"><i class="fas fa-headphones-alt"></i> {{this.speaker}}</div>
+                <div class="item-text">{{this.teaserBody}}</div>
+              </div>
+            </a>
+          </li>
+          {{/each}}
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</template>
+<script>
+
+  import api from '../plugins/api';
+  import storage from '../plugins/storage';
+  import cache from '../plugins/cache';
+
+  export default {
+    data () {
+      return {
+        // empty initial user data
+        yogaItems: cache.yogaItems
+      }
+    },
+    on: {
+      pageInit: function () {
+        var self = this;
+        var app = self.$app;
+
+        if(self.yogaItems.length == 0) {
+
+          app.preloader.show();
+          setTimeout(() => {
+            let sitems = storage.get('yoga');
+
+            if(sitems) {
+              console.log('load from cache');
+              self.$setState({
+                yogaItems: sitems
+              });
+              cache.yogaItems = sitems;
+              app.preloader.hide();
+            }
+            else {
+              // request user data on page init
+              api.getYoga({
+                success: (items) => {
+                  console.log(items);
+                  self.$setState({
+                    yogaItems: items
+                  });
+                  cache.yogaItems = items;
+                  storage.set('yoga', items);
+                }
+              });
+            }
+
+          },50);
+        }
+      },
+    },
+  };
+</script>
