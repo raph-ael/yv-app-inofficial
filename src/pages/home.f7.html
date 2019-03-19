@@ -105,5 +105,17 @@
 
   console.log('home');
 
-  export default {}
+  export default {
+    data() {
+      return {
+        // empty initial user data
+        yogaItems: []
+      }
+    },
+    on: {
+      pageInit: function () {
+
+      }
+    }
+  }
 </script>

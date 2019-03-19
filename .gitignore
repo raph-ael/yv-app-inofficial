@@ -62,4 +62,10 @@ typings/
 www/
 src/fonts
 
+#IDE
 .idea/
+
+# cordova ignorings
+#Cordova Info
+platforms/
+plugins/
