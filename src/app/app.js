@@ -9,9 +9,13 @@ let app = {
   popup: false,
   route: {},
   router: {},
+  loaded_scripts: [],
+  youtube_api_ready: false,
+  youtube_api_ready_callbacks: [],
   init: () => {
 
     app.initFramework7();
+    app.initYTApi();
 
     if (document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1) {
       app.is_app = true;
@@ -23,6 +27,26 @@ let app = {
       app.initStatusbar();
 
     }, false);
+  },
+
+  initYTApi: () => {
+    window.onYouTubeIframeAPIReady = function () {
+      app.youtube_api_ready = true;
+      app.youtube_api_ready_callbacks.forEach(function(cb){
+        cb();
+      });
+      app.youtube_api_ready_callbacks = [];
+    }
+  },
+
+  youtubeScript: (callback) => {
+    app.loadScript('https://www.youtube.com/iframe_api');
+    if(app.youtube_api_ready) {
+      callback();
+    }
+    else {
+      app.youtube_api_ready_callbacks.push(callback);
+    }
   },
 
   initFramework7: () => {
@@ -84,6 +108,19 @@ let app = {
 
   initStatusbar: () => {
     //StatusBar.backgroundColorByHexString('#FFFFFF');
+  },
+
+  loadScript: (url) => {
+
+    if(app.loaded_scripts.indexOf(url) == -1) {
+      var tag = document.createElement('script');
+      tag.src = url;
+      var firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+      app.loaded_scripts.push(url);
+    }
+
+
   }
 
 };

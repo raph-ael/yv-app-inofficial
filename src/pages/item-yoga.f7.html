@@ -23,7 +23,7 @@
       -->
 
       <a id="yoga-video-starter" class="video-preview bg-full" href="#" style="background-image: url({{item.image_url}});">
-        <span><i class="fas fa-play"></i></span>
+        <span><i id="yoga-play-btn" class="fas fa-play"></i><i id="yoga-video-loader" style="display: none;" class="fas fa-circle-notch fa-spin"></i></span>
       </a>
 
       <div class="block-title block-title-medium">{{item.title}}</div>
@@ -65,15 +65,19 @@
 
   function setImageHeight() {
 
-    let $video = $$('.video-preview');
-    $video.css('height', Math.round((helper.screenWidth()/16)*9)+'px');
-
-    /*
-    let $video = $$('iframe');
     let height = Math.round((helper.screenWidth()/16)*9);
+
+    let $video = $$('.video-preview');
     $video.css('height', height+'px');
-    $video.attr('height', height);
-    */
+
+    let $iframe = $$('iframe');
+    if($iframe.length > 0) {
+      $iframe.css({
+        'width': '100%',
+        'height': (height-6) + 'px'
+      });
+      $iframe.attr('height', (height-6)).attr('width','100%');
+    }
   }
 
   $$(window).on('resize', () => {
@@ -122,6 +126,7 @@
             /*
              * Video Browser
              */
+            /*
             let video_browser = app.fw7.photoBrowser.create({
               photos : [
                 {
@@ -132,9 +137,47 @@
               theme: 'dark',
               type: 'standalone'
             });
+            */
+
+            //let $video = $$('#yoga-video-starter');
 
             $$('#yoga-video-starter').on('click', () => {
 
+              $$('#yoga-play-btn').hide();
+              $$('#yoga-video-loader').css('left','0px').show();
+
+              var player;
+
+              app.youtubeScript(() => {
+                //$$('#yoga-video-starter').parent().prepend('<iframe id="youtube-player" width="100%" height="320" style="margin:0;padding:0;width:100%;height:320px" src="https://www.youtube.com/embed/' + item.youtube_id + '?&theme=dark&autohide=1&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3" frameborder="0" allowfullscreen></iframe>');
+                $$('#yoga-video-starter').parent().prepend('<div id="youtube-player"></div>');
+
+                let height = Math.round((helper.screenWidth()/16)*9);
+
+                player = new YT.Player('youtube-player', {
+                  height: (height-6),
+                  width: '100%',
+                  videoId: item.youtube_id,
+                  events: {
+                    'onReady': function(event) {
+                      event.target.playVideo();
+                      setTimeout(() => {
+                        $$('#yoga-video-starter').remove();
+                        //setImageHeight();
+                      },3000);
+                    }
+                  }
+                });
+                $$('#yoga-video-starter').css({
+                  'position': 'relative',
+                  'top': '-' + height + 'px',
+                  'margin-bottom': '-' + height + 'px'
+                });
+              });
+
+
+
+              /*
               if(helper.isApp()) {
                 videoplayer.play(item.content.offline_video.url,{
                   complete: () => {
@@ -145,6 +188,7 @@
               else {
                 video_browser.open();
               }
+              */
             });
 
             /*
