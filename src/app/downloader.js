@@ -1,27 +1,132 @@
-var downloader = {
+class Downloader {
 
-  downloadFile: (file_url, file_name) => {
+  constructor(url, options) {
 
-    var fileName = file_name,
-      uriString = file_url;
+    var self = this;
 
-    // open target file for download
-    window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fileSystem) {
-      fileSystem.root.getFile(fileName, { create: true }, function (targetFile) {
+    this.url = url;
+    this.options = Object.assign({
+      filename: url.split('/').slice(-1)[0],
+      success: () => {},
+      error: () => {},
+      progress: () => {}
+    }, options);
+  }
 
-        var onSuccess, onError, onProgress; // plugin callbacks to track operation execution status and progress
+  getStatus(callback) {
 
-        var downloader = new BackgroundTransfer.BackgroundDownloader();
-        // Create a new download operation.
-        var download = downloader.createDownload(uriString, targetFile);
-        // Start the download and persist the promise to be able to cancel the download.
-        app.downloadPromise = download.startAsync().then(onSuccess, onError, onProgress);
+    let self = this;
+
+    if(Downloader.active_downloads !== undefined && Downloader.active_downloads[self.options.filename] !== undefined) {
+      callback(2);
+    }
+    else {
+      this.fileInfo((meta, file) => {
+        if(meta.size > 0) {
+          callback(1, file);
+        }
+        else {
+          callback(false);
+        }
+      });
+    }
+  }
+
+  fileInfo(success_callback, error_callback) {
+
+    this.getFile((targetFile) => {
+
+      console.log(targetFile);
+
+      targetFile.file(function (meta) {
+        console.log('meta');
+        console.log(meta);
+        success_callback(meta, targetFile);
       });
     });
 
+  }
+
+  start() {
+    var self = this;
+
+
+
+    self.getFile((targetFile) => {
+      if(!Downloader.active_downloads) {
+        Downloader.active_downloads = {};
+      }
+      Downloader.active_downloads[self.options.filename] = true;
+      var dl = new BackgroundTransfer.BackgroundDownloader();
+      var download = dl.createDownload(self.url, targetFile, self.title);
+      self.downloadPromise = download.startAsync().then((ret) => {
+        delete Downloader.active_downloads[self.options.filename];
+        self.options.success(ret);
+      }, (ret) => {
+        delete Downloader.active_downloads[self.options.filename];
+        self.options.error(ret);
+      }, self.options.progress);
+    });
 
   }
 
-};
+  getFile(callback) {
 
-export default downloader;
+    var self = this;
+
+    this.getFolder((folder) => {
+      folder.getFile(self.options.filename, { create: true }, function (targetFile) {
+        callback(targetFile);
+      });
+    });
+  }
+
+  getFolder(callback) {
+    var self = this;
+    window.resolveLocalFileSystemURL(cordova.file.externalDataDirectory, function(dirEntry) {
+
+      if(self.options.folder !== undefined) {
+        dirEntry.getDirectory(self.options.folder, { create: true }, (subDirEntry) => {
+
+          callback(subDirEntry);
+
+        }, (error) => {
+          console.log(error);
+        });
+      }
+      else {
+        callback(dirEntry);
+      }
+
+    }, (error) => {
+      console.log(error);
+    });
+  }
+
+  delete(callback, error_callback) {
+
+    let self = this;
+
+    if(callback === undefined) {
+      callback = () => {};
+    }
+
+    if(error_callback === undefined) {
+      error_callback = () => {};
+    }
+
+    this.getFolder((folder) => {
+      folder.getFile(self.options.filename, {create:false}, function(fileEntry) {
+        fileEntry.remove(function(){
+          callback(true);
+        },function(error){
+          error_callback();
+        },function(){
+          callback(false);
+        });
+      });
+    });
+  }
+}
+
+export default Downloader;

@@ -31,10 +31,11 @@
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
     </platform>
-    <plugin name="com.moust.cordova.videoplayer" spec="~1.0.1" />
     <plugin name="cordova-plugin-splashscreen" spec="^5.0.2" />
     <preference name="SplashScreenSpinnerColor" value="#ac1924" />
     <preference name="ShowSplashScreenSpinner" value="false" />
     <preference name="SplashShowOnlyFirstTime" value="false" />
+    <plugin name="cordova-plugin-background-download" spec="https://github.com/sgrebnov/cordova-plugin-background-download.git" />
+    <plugin name="cordova-plugin-file" spec="^6.0.1" />
     <engine name="android" spec="^7.1.4" />
 </widget>

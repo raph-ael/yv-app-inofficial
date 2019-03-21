@@ -15,12 +15,7 @@
       <!--
       <iframe width="100%" height="320" style="width:100%;height:320px" src="https://www.youtube.com/embed/{{item.youtube_id}}?&theme=dark&autohide=1&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3" frameborder="0" allowfullscreen></iframe>
       -->
-      <!--
-      <video id="yoga-video" width="100%" preload="metadata" controls>
-        <source src="{{item.content.offline_video.url}}" type="video/mp4">
-        Auf Deinem Gerät können Keine Videos abgespielt werden.
-      </video>
-      -->
+
 
       <a id="yoga-video-starter" class="video-preview bg-full" href="#" style="background-image: url({{item.image_url}});">
         <span><i id="yoga-play-btn" class="fas fa-play"></i><i id="yoga-video-loader" style="display: none;" class="fas fa-circle-notch fa-spin"></i></span>
@@ -38,7 +33,13 @@
         <p><i class="far fa-clock"></i> &nbsp; {{item.content.offline_video.duration}} min</p>
         <p><i class="far fa-save"></i> &nbsp; {{item.content.offline_video.size}} MB</p>
       </div>
-      <div class="list if-ios if-md">
+      <div id="yoga-progress-block" style="display:none;" class="block block-strong">
+        <p>Download läuft...</p>
+        <div>
+          <p><span data-progress="0" class="progressbar" id="yoga-download-progress"></span></p>
+        </div>
+      </div>
+      <div id="yoga-download-block" style="display:none" class="list">
         <ul>
           <li>
             <label class="item-checkbox item-content">
@@ -60,8 +61,85 @@
   import api from '../app/api';
   import $$ from '../app/dom';
   import helper from '../app/helper';
-  import downloader from '../app/downloader';
+  import Downloader from '../app/downloader';
   import videoplayer from '../app/videoplayer';
+
+  let
+    $yoga_download_check,
+    $yoga_progress,
+    $dl_link,
+    $yoga_progress_block,
+    $video_local,
+    $video_starter,
+    dl;
+
+  function initVideo(item) {
+
+    $video_starter = $$('#yoga-video-starter');
+
+    $video_starter.on('click', () => {
+      dl.getStatus((status, file) => {
+
+        if(status === 1) {
+          loadVideoLocal(item, file);
+        }
+        else {
+          loadVideoYoutube(item);
+        }
+
+      });
+    });
+  }
+
+  function loadVideoLocal(item, file) {
+
+    $video_local = $$(`<video width="100%" preload="metadata" controls autoplay>
+        <source src="` + file.nativeURL + `" type="video/mp4">
+        Auf Deinem Gerät können Keine Videos abgespielt werden.
+      </video>`);
+
+    $$('#yoga-video-starter').parent().prepend($video_local);
+    $$('#yoga-video-starter').remove();
+
+    setImageHeight();
+  }
+
+  function loadVideoYoutube(item) {
+
+    $$('#yoga-play-btn').hide();
+    $$('#yoga-video-loader').css('left','0px').show();
+
+    var player;
+
+    app.youtubeScript(() => {
+      //$$('#yoga-video-starter').parent().prepend('<iframe id="youtube-player" width="100%" height="320" style="margin:0;padding:0;width:100%;height:320px" src="https://www.youtube.com/embed/' + item.youtube_id + '?&theme=dark&autohide=1&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3" frameborder="0" allowfullscreen></iframe>');
+      $video_starter.parent().prepend('<div id="youtube-player"></div>');
+
+      let height = Math.round((helper.screenWidth()/16)*9);
+
+      player = new YT.Player('youtube-player', {
+        height: (height-6),
+        width: '100%',
+        videoId: item.youtube_id,
+        events: {
+          'onReady': function(event) {
+            event.target.playVideo();
+            setTimeout(() => {
+              $video_starter.remove();
+              //setImageHeight();
+            },3000);
+          }
+        }
+      });
+
+      $video_starter.css({
+        'position': 'relative',
+        'top': '-' + height + 'px',
+        'margin-bottom': '-' + height + 'px'
+      });
+    });
+
+  }
 
   function setImageHeight() {
 
@@ -78,6 +156,94 @@
       });
       $iframe.attr('height', (height-6)).attr('width','100%');
     }
+
+    if($video_local) {
+      $video_local.attr('height', height);
+    }
+  }
+
+  function initReadMore() {
+    $$('#yoga-readmore').on('click', () => {
+      $$('#yoga-teaser').hide();
+      $$('#yoga-complete-text').show();
+    });
+  }
+
+  function initVideoDownloader(item) {
+
+    let filename = item.content.offline_video.url.split('/').slice(-1)[0];
+
+    dl = new Downloader(item.content.offline_video.url, {
+      filename: filename,
+      folder: 'item-' + item.id,
+      title: item.title,
+      success: (ret) => {
+
+        $$('#yoga-progress-block').hide();
+        $$('#yoga-download-block').show();
+        $dl_link.prop('checked', true);
+      },
+      error: (ret) => {
+        $dl_link.prop('checked', false);
+        $$('#yoga-progress-block').hide();
+        $$('#yoga-download-block').show();
+      },
+      progress: (progress) => {
+        let percent = Math.round(100 * progress.bytesReceived / progress.totalBytesToReceive);
+        app.fw7.progressbar.set($yoga_progress, percent);
+      }
+    });
+
+    dl.getStatus((status, file) => {
+
+      if(status === 1) {
+        $dl_link.prop('checked', true);
+      }
+      else if(status === 2) {
+        $$('#yoga-progress-block').show();
+        $$('#yoga-download-block').hide();
+      }
+      else {
+        $dl_link.prop('checked', false);
+      }
+
+    });
+
+    $dl_link.on('change', () => {
+
+      /*
+       * Download starten
+       */
+      if($dl_link.prop('checked')) {
+        $dl_link.prop('checked', false);
+        app.fw7.dialog.confirm('Video (' + item.content.offline_video.size + ' MB) wirklich herunterladen?', 'Video Downloaden', () => {
+
+          $yoga_progress_block.show();
+          $yoga_download_check.hide();
+          dl.start();
+          $dl_link.prop('checked', true);
+
+        }, () => {
+          $dl_link.prop('checked', false);
+        });
+      }
+      /*
+       * Datei löschen
+       */
+      else {
+        $dl_link.prop('checked', true);
+        app.fw7.dialog.confirm('Video (' + item.content.offline_video.size + ' MB) wieder löschen?', 'Video Löschen', () => {
+
+          dl.delete(() => {
+            $dl_link.prop('checked', false);
+          });
+
+        }, () => {
+          $dl_link.prop('checked', true);
+        });
+      }
+    });
+
   }
 
   $$(window).on('resize', () => {
@@ -104,6 +270,15 @@
     on: {
       pageInit: function(page) {
 
+        $yoga_download_check = $$('#yoga-download-block');
+        $yoga_progress = $$('#yoga-download-progress');
+        $yoga_progress_block = $$('#yoga-progress-block');
+        $dl_link = $$('#download-video');
+
+        if(helper.isApp()) {
+          $yoga_download_check.show();
+        }
+
         var self = this;
         let item_id = page.detail.route.params.itemId;
 
@@ -124,111 +299,21 @@
             setImageHeight();
 
             /*
-             * Video Browser
-             */
-            /*
-            let video_browser = app.fw7.photoBrowser.create({
-              photos : [
-                {
-                  html: '<iframe src="https://www.youtube.com/embed/' + helper.getYoutubeId(item.content.video_youtube.url) + '?&theme=dark&autoplay=1&autohide=1&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3" frameborder="0" allowfullscreen></iframe>',
-                  caption: item.title
-                }
-              ],
-              theme: 'dark',
-              type: 'standalone'
-            });
-            */
-
-            //let $video = $$('#yoga-video-starter');
-
-            $$('#yoga-video-starter').on('click', () => {
-
-              $$('#yoga-play-btn').hide();
-              $$('#yoga-video-loader').css('left','0px').show();
-
-              var player;
-
-              app.youtubeScript(() => {
-                //$$('#yoga-video-starter').parent().prepend('<iframe id="youtube-player" width="100%" height="320" style="margin:0;padding:0;width:100%;height:320px" src="https://www.youtube.com/embed/' + item.youtube_id + '?&theme=dark&autohide=1&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3" frameborder="0" allowfullscreen></iframe>');
-                $$('#yoga-video-starter').parent().prepend('<div id="youtube-player"></div>');
-
-                let height = Math.round((helper.screenWidth()/16)*9);
-
-                player = new YT.Player('youtube-player', {
-                  height: (height-6),
-                  width: '100%',
-                  videoId: item.youtube_id,
-                  events: {
-                    'onReady': function(event) {
-                      event.target.playVideo();
-                      setTimeout(() => {
-                        $$('#yoga-video-starter').remove();
-                        //setImageHeight();
-                      },3000);
-                    }
-                  }
-                });
-                $$('#yoga-video-starter').css({
-                  'position': 'relative',
-                  'top': '-' + height + 'px',
-                  'margin-bottom': '-' + height + 'px'
-                });
-              });
-
-
-
-              /*
-              if(helper.isApp()) {
-                videoplayer.play(item.content.offline_video.url,{
-                  complete: () => {
-                    videoplayer.close();
-                  }
-                });
-              }
-              else {
-                video_browser.open();
-              }
-              */
-            });
-
-            /*
              * readmore
              */
-            $$('#yoga-readmore').on('click', () => {
-              $$('#yoga-teaser').hide();
-              $$('#yoga-complete-text').show();
-            });
+            initReadMore();
 
 
             /*
              * Video Download
              */
-            let $dl_link = $$('#download-video');
+            initVideoDownloader(item);
 
-            $dl_link.on('change', () => {
 
-              /*
-               * Download starten
-               */
-              if($dl_link.prop('checked')) {
-                app.fw7.dialog.confirm('Video (' + item.content.offline_video.size + ' MB) wirklich herunterladen?', 'Video Downloaden', () => {
-
-                  let filename = item.content.offline_video.url.split('/').slice(-1)[0];
-
-                  downloader.downloadFile(item.content.offline_video.url, filename)
-
-                }, () => {
-                  $dl_link.prop('checked', false);
-                })
-              }
-              /*
-               * Datei löschen
-               */
-              else {
-
-              }
-
-            });
+            /*
+             * Video Player
+             */
+            initVideo(item);
 
           }
         });
