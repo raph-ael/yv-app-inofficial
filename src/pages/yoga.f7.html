@@ -63,6 +63,8 @@
   import {Dom7} from 'framework7/framework7.esm.bundle.js';
   import longscroller from '../app/longscroller';
   import helper from '../app/helper';
+  import ImgCache from '../app/imgcache';
+  import cache from '../app/cache';
 
   let $$ = Dom7;
 
@@ -120,20 +122,15 @@
     longscroller.init(items,{
       render: listItem,
       items_per_load: 10,
+      load_delay: 200,
       onAppend: (item, $el) => {
         api.getItem(item.id, {
           cached: true,
           success: (litem) => {
-            let img = helper.getYoutubeImageSmall(litem.content.video_youtube.url);
-
-            //$el.find('svg, i').remove();
-
             $el.find('.list-img-bg').css({
               'background-color': 'transparent',
-              'background-image': 'url(' + img + ')'
+              'background-image': 'url(' + litem.thumbnail_sm + ')'
             }).empty();
-
-
           }
         });
       }
@@ -144,28 +141,33 @@
     data () {
       return {
         // empty initial user data
-        yogaItems: []
+        yogaItems: [],
       }
     },
     on: {
       pageInit: function () {
+
         var self = this;
         var app = self.$app;
+
+
         api.getYoga({
           cached: true,
           success: (items) => {
-            /*
+
             self.$setState({
-              yogaItems: items.slice(0,itemsPerLoad)
+              yogaItems: items.slice(0,15)
             });
-            */
+
 
             initScroll(items);
+            cache.pages.yoga = {};
 
             //setItemsStepByStep(items);
 
           }
         });
+
       },
     },
   };

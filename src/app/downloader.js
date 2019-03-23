@@ -1,3 +1,8 @@
+import api from './api';
+import files from './files';
+import helper from './helper';
+import app from './app';
+
 class Downloader {
 
   constructor(url, options) {
@@ -13,6 +18,35 @@ class Downloader {
     }, options);
   }
 
+  static getAllVideos(callback) {
+
+    if(Downloader.downloads_allvideos !== undefined && Downloader.downloads_allvideos.length > 0) {
+      callback(Downloader.downloads_allvideos);
+    }
+    else {
+      files.getItems((fileitems) => {
+
+        if(fileitems.length == 0) {
+          callback([]);
+        }
+
+        var downloads = [];
+
+        fileitems.forEach((fileitem) => {
+          api.getItem(fileitem, {
+            success: (item) => {
+              downloads.push(item);
+              if(downloads.length == fileitems.length) {
+                Downloader.downloads_allvideos = downloads;
+                callback(downloads);
+              }
+            }
+          });
+        });
+      });
+    }
+  }
+
   getStatus(callback) {
 
     let self = this;
@@ -21,7 +55,7 @@ class Downloader {
       callback(2);
     }
     else {
-      this.fileInfo((meta, file) => {
+      self.fileInfo((meta, file) => {
         if(meta.size > 0) {
           callback(1, file);
         }
@@ -50,7 +84,7 @@ class Downloader {
   start() {
     var self = this;
 
-
+    Downloader.downloads_allvideos = [];
 
     self.getFile((targetFile) => {
       if(!Downloader.active_downloads) {
@@ -83,7 +117,7 @@ class Downloader {
 
   getFolder(callback) {
     var self = this;
-    window.resolveLocalFileSystemURL(cordova.file.externalDataDirectory, function(dirEntry) {
+    window.resolveLocalFileSystemURL(app.directory_data, function(dirEntry) {
 
       if(self.options.folder !== undefined) {
         dirEntry.getDirectory(self.options.folder, { create: true }, (subDirEntry) => {
@@ -104,6 +138,8 @@ class Downloader {
   }
 
   delete(callback, error_callback) {
+
+    Downloader.downloads_allvideos = [];
 
     let self = this;
 

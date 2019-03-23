@@ -1,0 +1,64 @@
+<template>
+  <div class="page">
+    <div class="navbar">
+      <div class="navbar-inner sliding">
+        <div class="left">
+          <a href="#" class="link back">
+            <i class="icon icon-back"></i>
+            <span class="if-ios">Back</span>
+          </a>
+        </div>
+        <div class="title">Downloads</div>
+      </div>
+    </div>
+    <div class="page-content">
+
+      {{#each downloads}}
+      <div id="download-{{this.id}}" class="card video-card-header-pic">
+        <div style="background-image: url({{this.thumbnail_xl}});" class="card-header align-items-flex-end">{{this.title}}</div>
+        <div class="card-content card-content-padding">
+          <p class="date"><i class="fas fa-headphones-alt"></i> {{this.speaker}} <span class="-pull-right"><i class="far fa-clock"></i> &nbsp;{{this.duration}} min</span></p>
+          <p>{{this.teaserBody}}</p>
+        </div>
+        <div class="card-footer"><a href="/yoga/{{this.id}}/video/" class="link">&nbsp;</a><a href="/yoga/{{this.id}}/" class="link">Weiter&nbsp; <i class="fas fa-arrow-right"></i></a></div>
+      </div>
+      {{/each}}
+
+    </div>
+  </div>
+</template>
+<script>
+
+  import downloader from '../app/downloader';
+  import app from '../app/app';
+  import api from '../app/api';
+  import $$ from '../app/dom';
+  import loader from '../app/loader';
+
+  export default {
+    data() {
+      return {
+        downloads: []
+      }
+    },
+    on: {
+      pageInit: function (page) {
+
+        loader.start();
+
+        var self = this;
+
+        downloader.getAllVideos((downloads) => {
+          console.log(downloads);
+
+          self.$setState({
+            downloads: downloads
+          });
+          loader.stop();
+
+        });
+
+      }
+    }
+  }
+</script>

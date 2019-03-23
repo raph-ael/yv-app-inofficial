@@ -10,6 +10,10 @@ var longscroller = {
       options = {};
     }
 
+    if(!options.load_delay) {
+      options.load_delay = 100;
+    }
+
     if(options.onAppend === undefined) {
       options.onAppend = (item, element) => {};
     }
@@ -61,7 +65,7 @@ var longscroller = {
 
         current_index++;
 
-      },300);
+      },options.load_delay);
 
     });
 

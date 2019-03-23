@@ -17,7 +17,7 @@
       -->
 
 
-      <a id="yoga-video-starter" class="video-preview bg-full" href="#" style="background-image: url({{item.image_url}});">
+      <a id="yoga-video-starter" class="video-preview bg-full" href="#" style="background-image: url({{item.thumbnail_xl}});">
         <span><i id="yoga-play-btn" class="fas fa-play"></i><i id="yoga-video-loader" style="display: none;" class="fas fa-circle-notch fa-spin"></i></span>
       </a>
 
@@ -63,6 +63,7 @@
   import helper from '../app/helper';
   import Downloader from '../app/downloader';
   import videoplayer from '../app/videoplayer';
+  import ImgCache from '../app/imgcache';
 
   let
     $yoga_download_check,
@@ -164,7 +165,7 @@
 
   function initReadMore() {
     $$('#yoga-readmore').on('click', () => {
-      $$('#yoga-teaser').hide();
+      $$('#yoga-teaser').remove();
       $$('#yoga-complete-text').show();
     });
   }
@@ -208,6 +209,7 @@
       }
 
     });
+
 
     $dl_link.on('change', () => {
 
@@ -270,6 +272,8 @@
     on: {
       pageInit: function(page) {
 
+        app.fw7.preloader.show();
+
         $yoga_download_check = $$('#yoga-download-block');
         $yoga_progress = $$('#yoga-download-progress');
         $yoga_progress_block = $$('#yoga-progress-block');
@@ -288,9 +292,6 @@
           success: (item) => {
 
             console.log(item);
-
-            item.image_url = helper.getYoutubeImageMax(item.content.video_youtube.url);
-            item.youtube_id = helper.getYoutubeId(item.content.video_youtube.url);
 
             self.$setState({
               item: item
@@ -314,6 +315,9 @@
              * Video Player
              */
             initVideo(item);
+
+            app.fw7.preloader.hide();
+
 
           }
         });

@@ -2,6 +2,9 @@ import Framework7 from 'framework7/framework7.esm.bundle.js';
 import routes from './routes.js';
 import $$ from './dom';
 import helper from './helper';
+import ImgCache from './imgcache';
+import api from './api';
+import Downloader from "./downloader";
 
 let app = {
   fw7: null,
@@ -12,21 +15,41 @@ let app = {
   loaded_scripts: [],
   youtube_api_ready: false,
   youtube_api_ready_callbacks: [],
+  directory_data: null,
   init: () => {
-
-    app.initFramework7();
-    app.initYTApi();
 
     if (document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1) {
       app.is_app = true;
     }
 
+    app.initFramework7();
+    app.initYTApi();
+    app.preCacheUrls();
+
     document.addEventListener('deviceready', () => {
+
+      app.directory_data = cordova.file.externalDataDirectory;
 
       app.initBackKey();
       app.initStatusbar();
+      app.initImgCache();
 
     }, false);
+  },
+
+  initImgCache: () => {
+
+    // increase allocated space on Chrome to 50MB, default was 10MB
+    ImgCache.options.chromeQuota = 50*1024*1024;
+    //ImgCache.options.cordovaFilesystemRoot = cordova.file.cacheDirectory;
+    ImgCache.options.cordovaFilesystemRoot = cordova.file.externalDataDirectory;
+
+    ImgCache.init(function () {
+      console.log('ImgCache init: success!');
+
+    }, function () {
+      console.error('ImgCache init: error! Check the log for errors');
+    });
   },
 
   initYTApi: () => {
@@ -88,6 +111,9 @@ let app = {
   initBackKey: () => {
 
     document.addEventListener('backbutton', () => {
+
+      console.log(app.route.path);
+
       if (($$('.panel').hasClass('panel-active'))) {
         app.fw7.panel.close();
         return false;
@@ -119,10 +145,26 @@ let app = {
       firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
       app.loaded_scripts.push(url);
     }
+  },
 
+  preCacheUrls: () => {
+    api.getYoga({
+      cached: true,
+      refresh: true,
+      success: (items) => {
 
+        Downloader.getAllVideos(() => {
+
+        });
+
+        items.slice(0,10).forEach((item) => {
+          api.getItem(item.id,{
+            cached: true
+          });
+        });
+      }
+    });
   }
-
 };
 
 

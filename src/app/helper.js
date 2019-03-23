@@ -1,5 +1,6 @@
 import $$ from './dom';
 import app from './app';
+import ImgCache from './imgcache';
 
 var helper = {
 
@@ -38,6 +39,9 @@ var helper = {
       return false;
     }
     return true;
+  },
+  cachedImage: (url, callback) => {
+    callback(url);
   }
 };
 

@@ -1,4 +1,5 @@
 #/bin/bash
+#npm run build-dev
 npm run build-prod
 rm -rf ./cordova/www
 cp -r ./www ./cordova/

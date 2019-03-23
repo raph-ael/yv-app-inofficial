@@ -1,5 +1,5 @@
 var cache = {
-  yogaItems: []
+  pages: {}
 };
 
 export default cache;

@@ -2,6 +2,7 @@ import HomePage from '../pages/home.f7.html';
 import YogaPage from '../pages/yoga.f7.html';
 import VideoPage from '../pages/video.f7.html';
 import YogaItemPage from '../pages/item-yoga.f7.html';
+import DownloadsPage from '../pages/downloads.f7.html';
 
 
 import FormPage from '../pages/form.f7.html';
@@ -35,6 +36,10 @@ export default [
   {
     path: '/panel-right/',
     component: PanelRightPage,
+  },
+  {
+    path: '/downloads/',
+    component: DownloadsPage,
   },
   {
     path: '/about/',
