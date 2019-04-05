@@ -1,0 +1,3 @@
+export default (it) => {
+    var out='<ul id="asana-content-ul" class="nav itemlist mb-2"> ';var arr1=it.items;if(arr1){var item,index=-1,l1=arr1.length-1;while(index<l1){item=arr1[index+=1];out+=' <li class="mx-2 mt-2"> <a class="nav-link list-asana" href="#!/asana/'+(item.id)+'"> <span style="background-image: url('+(item.teaserImage)+');" class="itemlist-media bg-cover"></span> <span class="itemlist-title-row"> <span class="itemlist-title">'+(item.title)+'</span> <span class="itemlist-subtitle">'+(item.sanskrit)+'</span> </span> <span class="itemlist-after">&nbsp;</span> </a> </li> ';} } out+='</ul><ul id="asana-search-results" class="nav itemlist mb-2"></ul>';return out;
+};

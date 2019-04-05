@@ -1,0 +1,3 @@
+export default (it) => {
+    var out='<audio class="w-100" controls controlsList="nofullscreen nodownload noremoteplayback"> <source src="'+(it.content.audio.url)+'" type="audio/mpeg"></audio>';return out;
+};

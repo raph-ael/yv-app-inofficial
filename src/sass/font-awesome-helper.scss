@@ -1,0 +1,17 @@
+.fa-spin {
+  -webkit-animation: fa-spin 2s infinite linear;
+  animation: fa-spin 2s infinite linear;
+}
+
+.fa-fw {
+  text-align: center;
+  width: 1.25em;
+}
+@keyframes fa-spin {
+  from {
+    transform:rotate(0deg);
+  }
+  to {
+    transform:rotate(360deg);
+  }
+}

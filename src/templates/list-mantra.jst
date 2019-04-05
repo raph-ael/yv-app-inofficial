@@ -1,0 +1,20 @@
+<ul id="mantra-content-ul" class="nav itemlist mb-2">
+
+    {{~it.items :item:index}}
+    <li class="mantra-item mx-2 mt-2" data-id="{{=item.id}}" id="yoga-list-item-{{=index}}">
+        <a class="nav-link nav-mantra" href="#!/mantra/{{=item.id}}">
+            <span class="itemlist-icon"><i class="icon-headphones"></i></span>
+
+            <span class="itemlist-title-row pt-1">
+              <span class="itemlist-title">{{=item.title}} {{=item.subTitle}}</span>
+              <span class="itemlist-subtitle">{{? item.subText }} {{=item.subText}} {{??}} {{=item.teaserBody.substring(0,40)}} {{?}}&nbsp;</span>
+            </span>
+            <span class="itemlist-after">&nbsp;</span>
+        </a>
+    </li>
+    {{~}}
+
+</ul>
+<ul id="mantra-search-results" class="nav itemlist mb-2">
+
+</ul>

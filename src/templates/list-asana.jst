@@ -1,0 +1,20 @@
+<ul id="asana-content-ul" class="nav itemlist mb-2">
+
+    {{~it.items :item:index}}
+    <li class="mx-2 mt-2">
+        <a class="nav-link list-asana" href="#!/asana/{{=item.id}}">
+            <span style="background-image: url({{=item.teaserImage}});" class="itemlist-media bg-cover"></span>
+            <span class="itemlist-title-row">
+                <span class="itemlist-title">{{=item.title}}</span>
+                <span class="itemlist-subtitle">{{=item.sanskrit}}</span>
+            </span>
+            <span class="itemlist-after">&nbsp;</span>
+
+        </a>
+    </li>
+    {{~}}
+
+</ul>
+<ul id="asana-search-results" class="nav itemlist mb-2">
+
+</ul>

@@ -1,0 +1,99 @@
+.nav.itemlist > li
+  display: block
+  width: 100%
+
+
+.nav.itemlist > li > a
+  display: block
+  text-decoration: none !important
+  padding: 4px
+  border-radius: 3px
+  height: 58px
+  width: 100%
+
+.nav.itemlist > li > a:hover, .nav.itemlist > li > a:active
+  text-decoration: none !important
+  background-color: $color_grey_lightest
+
+.nav.itemlist > li > a > span
+  display: block
+
+
+.nav.itemlist > li > a .itemlist-media
+  width: 66px
+  height: 49px
+  background-color: $color_grey_lighter
+  margin-right: 10px
+  float: left
+
+.nav.itemlist > li > a.list-asana .itemlist-media
+  width: 49px
+
+
+.nav.itemlist > li > a .itemlist-icon
+  width: 57px
+  height: 49px
+  flex-shrink: 0
+  font-size: 21px
+  float: left
+
+.nav.itemlist > li > a .itemlist-icon > i
+  background-color: $color_yellow
+  color: $color_red
+  width: 42px
+  height: 42px
+  display: inline-block
+  text-align: center
+  line-height: 40px
+  border-radius: 50%
+  margin: 4px 0px 0 4px
+
+.nav.itemlist > li > a .itemlist-icon > i:before
+  margin-left: 1px
+
+.nav.itemlist > li > a .itemlist-title-row
+  display: block
+  float: left
+  height: 50px
+  width: calc(100% - 155px)
+
+.nav.itemlist > li > a.nav-mantra .itemlist-title-row
+  width: calc(100% - 90px)
+
+.nav.itemlist > li > a .itemlist-title
+  overflow: hidden
+  text-overflow: ellipsis
+  white-space: nowrap
+  color: $color_black
+  height: 24px
+  display: block
+
+.nav.itemlist > li > a .itemlist-after
+  font-size: $size-s
+  color: $color_grey_light
+  width: 75px
+  float: right
+
+.nav.itemlist > li > a.nav-mantra .itemlist-after, .nav.itemlist > li > a.list-asana .itemlist-after
+  width: 20px
+
+.nav.itemlist > li > a .itemlist-after:after
+  font-family: 'icomoon'
+  content: "\f105"
+  color: $color_grey_lighter
+  font-size: 12px
+  margin-left: 10px
+  float: right
+
+.itemlist-after .min
+  display: inline-block
+  width: 20px
+  text-align: right
+
+.nav.itemlist > li > a .itemlist-subtitle
+  font-size: $size-s
+  color: $color_grey_light
+  overflow: hidden
+  text-overflow: ellipsis
+  white-space: nowrap
+  display: block

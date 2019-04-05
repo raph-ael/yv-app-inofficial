@@ -1,0 +1,17 @@
+<ul class="nav itemlist mb-2">
+
+    {{~it.items :item:index}}
+    <li id="yoga-list-item-{{=index}}" class="mx-2 mt-2">
+        <a class="nav-link" href="#!/yoga/{{=item.id}}">
+            <span data-i="{{=index}}" data-id="{{=item.id}}" class="itemlist-media bg-cover"></span>
+            <span class="itemlist-title-row">
+                <span class="itemlist-title">{{=item.title}}</span>
+                <span class="itemlist-subtitle">{{=item.speaker}}</span>
+            </span>
+            <span class="itemlist-after"><i class="icon-clock-o"></i> <span class="min">{{=item.duration}}</span> min</span>
+
+        </a>
+    </li>
+    {{~}}
+
+</ul>

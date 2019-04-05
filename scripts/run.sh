@@ -1,7 +1,8 @@
-#/bin/bash
+#!/bin/bash
 #npm run build-dev
-npm run build-prod
+./scripts/prod.sh
+#./scripts/dev.sh
 rm -rf ./cordova/www
-cp -r ./www ./cordova/
+cp -r ./dist ./cordova/www
 cd cordova
 cordova run android --device

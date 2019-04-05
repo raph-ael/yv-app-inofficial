@@ -1,0 +1,3 @@
+export default (it) => {
+    var out='<!-- Slider main container --><div id="asana-content-carousel" class="swiper-container"> <!-- Additional required wrapper --> <div class="swiper-wrapper"> <!-- Slides --> ';var arr1=it.content.sliderImages;if(arr1){var img,index=-1,l1=arr1.length-1;while(index<l1){img=arr1[index+=1];out+=' <div class="swiper-slide bg-cover"><img src="'+(img)+'" width="100%" /></div> ';} } out+=' ... </div> <!-- Add Pagination --> <div class="swiper-pagination"></div></div><div class="px-4 pt-3"> <h1 class="m-0">';it.titleout+='</h1> <div class="mt-2"> </div></div>';return out;
+};

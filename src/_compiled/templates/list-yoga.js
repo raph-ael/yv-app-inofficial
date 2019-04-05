@@ -1,0 +1,3 @@
+export default (it) => {
+    var out='<ul class="nav itemlist mb-2"> ';var arr1=it.items;if(arr1){var item,index=-1,l1=arr1.length-1;while(index<l1){item=arr1[index+=1];out+=' <li id="yoga-list-item-'+(index)+'" class="mx-2 mt-2"> <a class="nav-link" href="#!/yoga/'+(item.id)+'"> <span data-i="'+(index)+'" data-id="'+(item.id)+'" class="itemlist-media bg-cover"></span> <span class="itemlist-title-row"> <span class="itemlist-title">'+(item.title)+'</span> <span class="itemlist-subtitle">'+(item.speaker)+'</span> </span> <span class="itemlist-after"><i class="icon-clock-o"></i> <span class="min">'+(item.duration)+'</span> min</span> </a> </li> ';} } out+='</ul>';return out;
+};

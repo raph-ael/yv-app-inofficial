@@ -69,3 +69,5 @@ src/fonts
 #Cordova Info
 platforms/
 plugins/
+
+dist/
